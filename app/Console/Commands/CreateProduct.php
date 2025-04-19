@@ -50,7 +50,7 @@ class CreateProduct extends Command
             [
                 'name' => 'required|string',
                 'description' => 'required|string',
-                'price' => 'required|numeric',
+                'price' => 'required|numeric|min:0',
                 'image' => 'required|image|mimes:jpg,bmp,png',
                 'categories' => 'required|array',
                 'categories.*' => 'required|exists:categories,id',

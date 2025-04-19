@@ -4,14 +4,27 @@ namespace App\Repositories;
 
 use App\Models\Product;
 use App\DTOs\ProductDTO;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class ProductRepository implements ProductRepositoryInterface
 {
-    public function all(): Collection
+    public function all(?Request $request): LengthAwarePaginator
     {
-        return Product::all();
+        return Product::
+            when($request?->get('sort'), function (Builder $query) use ($request) {
+                $query->orderBy('price', $request?->get('sort'));
+            })
+            ->when($request?->get('category'), function (Builder $query) use ($request) {
+                $query->whereHas('categories', function ($q) use ($request) {
+                    $q->where('categories.id', $request?->get('category'));
+                });
+            })
+            ->with('categories')
+            ->paginate($request?->get('perPage') ?? 5)
+            ->withQueryString();
     }
 
     public function create(ProductDTO $productDTO): ?Product

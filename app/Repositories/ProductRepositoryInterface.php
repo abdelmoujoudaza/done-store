@@ -4,11 +4,12 @@ namespace App\Repositories;
 
 use App\Models\Product;
 use App\DTOs\ProductDTO;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ProductRepositoryInterface
 {
-    public function all(): Collection;
+    public function all(?Request $request): LengthAwarePaginator;
 
     public function create(ProductDTO $productDTO): ?Product;
 
