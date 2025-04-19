@@ -3,15 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\DTOs\ProductDTO;
 use Illuminate\Database\Eloquent\Collection;
 
 interface ProductRepositoryInterface
 {
     public function all(): Collection;
 
-    public function create(array $attributes): ?Product;
+    public function create(ProductDTO $productDTO): ?Product;
 
-    public function update(array $attributes, int $id): int;
+    public function update(ProductDTO $productDTO, int $id): int;
 
     public function delete(int $id): bool;
 

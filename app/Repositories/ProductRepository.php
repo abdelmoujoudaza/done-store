@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\DTOs\ProductDTO;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 
 class ProductRepository implements ProductRepositoryInterface
@@ -12,16 +14,28 @@ class ProductRepository implements ProductRepositoryInterface
         return Product::all();
     }
 
-    public function create(array $attributes): ?Product
+    public function create(ProductDTO $productDTO): ?Product
     {
-        return Product::create($attributes);
+        try {
+            DB::beginTransaction();
+
+            $product = Product::create($productDTO->toArray());
+            $product->categories()->attach($productDTO->categories);
+
+            DB::commit();
+
+            return $product;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return null;
+        }
     }
 
-    public function update(array $attributes, int $id): int
+    public function update(ProductDTO $productDTO, int $id): int
     {
         $product = Product::findOrFail($id);
 
-        return $product->update($attributes);
+        return $product->update($productDTO->toArray());
     }
 
     public function delete(int $id): bool
