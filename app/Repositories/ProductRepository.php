@@ -7,22 +7,22 @@ use App\DTOs\ProductDTO;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class ProductRepository implements ProductRepositoryInterface
 {
+    public function __construct(
+        private CategoryProductRepositoryInterface $categoryProductRepository
+    ) {}
+
     public function all(?Request $request): LengthAwarePaginator
     {
+        $ids = $request?->get('category')
+            ? $this->categoryProductRepository->filterByCategory($request?->get('category'))->pluck('product_id')
+            : null;
+
         return Product::
-            when($request?->get('sort'), function (Builder $query) use ($request) {
-                $query->orderBy('price', $request?->get('sort'));
-            })
-            ->when($request?->get('category'), function (Builder $query) use ($request) {
-                $query->whereHas('categories', function ($q) use ($request) {
-                    $q->where('categories.id', $request?->get('category'));
-                });
-            })
-            ->with('categories')
+            when($request?->get('sort'), fn ($query) => $query->orderBy('price', $request?->get('sort')))
+            ->when($ids, fn ($query) => $query->whereIn('id', $ids))
             ->paginate($request?->get('perPage') ?? 5)
             ->withQueryString();
     }
@@ -33,7 +33,7 @@ class ProductRepository implements ProductRepositoryInterface
             DB::beginTransaction();
 
             $product = Product::create($productDTO->toArray());
-            $product->categories()->attach($productDTO->categories);
+            $this->attach($productDTO->categories, $product->id);
 
             DB::commit();
 
@@ -61,5 +61,16 @@ class ProductRepository implements ProductRepositoryInterface
     public function find(int $id): ?Product
     {
         return Product::find($id);
+    }
+
+    public function attach(int|string|array $categories, int $id) : bool
+    {
+        $product = $this->find($id);
+        $categories = is_array($categories) ? $categories : [$categories];
+
+        return $this->categoryProductRepository->insert(array_map(
+            fn ($id) => ['category_id' => $id, 'product_id' => $product->id],
+            $categories
+        ));
     }
 }

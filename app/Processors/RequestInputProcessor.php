@@ -5,7 +5,7 @@ namespace App\Processors;
 use App\DTOs\ProductDTO;
 use Illuminate\Http\Request;
 
-class RequestInputProcessor implements InputProcessorInterface
+class RequestInputProcessor extends BaseInputProcessor
 {
     public function process(mixed $source): ProductDTO
     {
@@ -17,7 +17,7 @@ class RequestInputProcessor implements InputProcessorInterface
             name: $source->input('name'),
             description: $source->input('description'),
             price: (float) $source->input('price'),
-            image: $source->file('image')?->store('products'),
+            image: $this->processImage($source->file('image')->path()),
             categories: $source->input('categories', [])
         );
     }

@@ -10,14 +10,15 @@ beforeEach(function () {
     $this->categories = Category::all()->random(2);
 });
 
-test('product can be created from Http request', function () {
+test('Products can be created via an Http request', function () {
     $this->post(route('products.store'), [
         'name' => $this->product->name,
         'description' => $this->product->description,
         'price' => $this->product->price,
         'image' => UploadedFile::fake()->image('product.jpg'),
         'categories' => $this->categories->pluck('id')->toArray()
-    ]);
+    ])
+    ->assertRedirectToRoute('products.index');
 
     $this->assertDatabaseHas('products', [
         'name' => $this->product->name,
@@ -34,7 +35,7 @@ test('product can be created from Http request', function () {
     expect($this->product->categories->pluck('id')->toArray())->toBe($this->categories->pluck('id')->toArray());
 });
 
-test('creating a product via the Http request throws validation errors when arguments are missing', function () {
+test('Creating a product via an HTTP request throws validation errors when required arguments are missing', function () {
     $this->post(route('products.store'), [
         'name' => $this->product->name,
         'description' => $this->product->description,
@@ -42,7 +43,8 @@ test('creating a product via the Http request throws validation errors when argu
         'image' => null,
         'categories' => []
     ])
-    ->assertRedirect();
+    ->assertRedirect()
+    ->assertInvalid(['image', 'categories']);
 
     $this->assertDatabaseMissing('products', [
         'name' => $this->product->name,
@@ -51,7 +53,7 @@ test('creating a product via the Http request throws validation errors when argu
     ]);
 });
 
-test('create product page accessible', function () {
+test('Product creation page accessibility', function () {
     $this->get(route('products.create'))
     ->assertOk()
     ->assertInertia(fn (Assert $page) => $page

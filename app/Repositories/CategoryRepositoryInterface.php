@@ -16,4 +16,6 @@ interface CategoryRepositoryInterface
     public function delete(int $id): bool;
 
     public function find(int $id): ?Category;
+
+    public function exists(mixed $ids): bool;
 }

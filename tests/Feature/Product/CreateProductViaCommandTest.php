@@ -8,7 +8,7 @@ beforeEach(function () {
     $this->categories = Category::all()->random(2);
 });
 
-test('product can be created from cli', function () {
+test('Products can be created via the CLI', function () {
     $image = base_path('/tests/mocks/blank-product.png');
 
     $this->artisan(sprintf(
@@ -37,7 +37,7 @@ test('product can be created from cli', function () {
     expect($this->product->categories->pluck('id')->toArray())->toBe($this->categories->pluck('id')->toArray());
 });
 
-test('creating a product via the CLI throws validation errors when arguments are missing', function () {
+test('Creating a product via an CLI throws validation errors when required arguments are missing', function () {
     $image = base_path('/tests/mocks/blank-product.png');
 
     $this->artisan(sprintf(

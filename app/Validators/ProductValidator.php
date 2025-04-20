@@ -2,6 +2,8 @@
 
 namespace App\Validators;
 
+use App\Rules\CategoryExists;
+
 class ProductValidator
 {
     public static function creationRules() : array
@@ -11,8 +13,8 @@ class ProductValidator
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'image' => 'required|image|mimes:jpg,bmp,png',
-            'categories' => 'required|array',
-            'categories.*' => 'required|exists:categories,id',
+            'categories' => ['required', 'array', app(CategoryExists::class)],
+            'categories.*' => 'integer',
         ];
     }
 }

@@ -3,11 +3,9 @@
 namespace App\Processors;
 
 use App\DTOs\ProductDTO;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Input\InputInterface;
 
-class ConsoleInputProcessor implements InputProcessorInterface
+class ConsoleInputProcessor extends BaseInputProcessor
 {
     public function process(mixed $source): ProductDTO
     {
@@ -19,7 +17,7 @@ class ConsoleInputProcessor implements InputProcessorInterface
             name: $source->getArgument('name'),
             description: $source->getArgument('description'),
             price: (float) $source->getArgument('price'),
-            image: Storage::disk('public')->putFile('products', new File($source->getArgument('image'))),
+            image: $this->processImage($source->getArgument('image')),
             categories: $source->hasArgument('categories')  ? explode(',', $source->getArgument('categories')) : []
         );
     }

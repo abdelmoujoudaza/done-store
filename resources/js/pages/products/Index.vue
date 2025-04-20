@@ -109,7 +109,6 @@ watch(selectedCategory, (value) => {
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Name</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-3/12">Description</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Price</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-3/12">Categories</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Actions</th>
                                     </tr>
                                 </thead>
@@ -119,7 +118,6 @@ watch(selectedCategory, (value) => {
                                         <td class="px-6 py-4 text-sm font-medium text-gray-900 w-2/12">{{ product.name }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-500 w-3/12">{{ product.description }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-500 w-1/12">${{ product.price.toFixed(2) }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-500 w-3/12">{{ product.categories.map((category) => category.name).join(', ') }}</td>
                                         <td class="px-6 py-4 text-sm font-medium w-2/12">
                                             <Link
                                                 :href="`/products/${product.id}`"

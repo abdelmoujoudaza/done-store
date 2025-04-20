@@ -35,4 +35,11 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return Category::find($id);
     }
+
+    public function exists(mixed $ids): bool
+    {
+        $ids = is_array($ids) ? $ids : [$ids];
+
+        return Category::whereIn('id', $ids)->count() === count($ids);
+    }
 }

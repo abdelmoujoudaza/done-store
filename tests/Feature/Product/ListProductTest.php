@@ -3,7 +3,7 @@
 use App\Models\Category;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('product listing has a pagination mecanisme', function () {
+test('The product listing includes a pagination functionality', function () {
     $this->get(route('products.index', ['perPage' => 10]))
     ->assertOk()
     ->assertInertia(fn (Assert $page) => $page
@@ -14,7 +14,7 @@ test('product listing has a pagination mecanisme', function () {
     );
 });
 
-test('product listing has a filters mecanisme', function (Category $category, string $sort) {
+test('The product listing includes a filtering functionality', function (Category $category, string $sort) {
     $this->get(route('products.index', ['category' => $category->id, 'sort' => $sort]))
     ->assertOk()
     ->assertInertia(fn (Assert $page) => $page

@@ -18,4 +18,6 @@ interface ProductRepositoryInterface
     public function delete(int $id): bool;
 
     public function find(int $id): ?Product;
+
+    public function attach(int|string|array $categories, int $id) : bool;
 }

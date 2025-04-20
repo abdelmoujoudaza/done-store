@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Requests\IndexProductRequest;
 use App\Http\Requests\StoreProductRequest;
@@ -56,7 +55,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(int $id)
     {
         //
     }
@@ -64,7 +63,7 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product)
+    public function edit(int $id)
     {
         //
     }
@@ -72,7 +71,7 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, int $id)
     {
         //
     }
@@ -80,8 +79,9 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(int $id)
     {
+        $product = $this->productRepository->find($id);
         $this->productRepository->delete($product->id);
 
         return redirect()->intended(route('products.index'));
