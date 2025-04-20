@@ -46,7 +46,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        $productDTO = $this->inputProcessorFactory->getProcessor('request')->handle($request);
+        $productDTO = $this->inputProcessorFactory->getProcessor('request')->process($request);
 
         $this->productRepository->create($productDTO);
 

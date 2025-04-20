@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class ConsoleInputProcessor implements InputProcessorInterface
 {
-    public function handle(mixed $source): ProductDTO
+    public function process(mixed $source): ProductDTO
     {
         if (! $source instanceof InputInterface) {
             throw new \InvalidArgumentException('Invalid input source');

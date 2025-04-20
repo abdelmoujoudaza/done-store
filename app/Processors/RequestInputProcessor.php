@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class RequestInputProcessor implements InputProcessorInterface
 {
-    public function handle(mixed $source): ProductDTO
+    public function process(mixed $source): ProductDTO
     {
         if (! $source instanceof Request) {
             throw new \InvalidArgumentException('Invalid input source');

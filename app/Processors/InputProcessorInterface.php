@@ -6,5 +6,5 @@ use App\DTOs\ProductDTO;
 
 interface InputProcessorInterface
 {
-    public function handle(mixed $source): ProductDTO;
+    public function process(mixed $source): ProductDTO;
 }

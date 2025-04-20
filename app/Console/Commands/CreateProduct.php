@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Http\File;
 use Illuminate\Console\Command;
+use App\Validators\ProductValidator;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\ProductRepositoryInterface;
 use App\Processors\InputProcessorFactoryInterface;
@@ -47,14 +48,7 @@ class CreateProduct extends Command
                 'image' => new File($this->input->getArgument('image')),
                 'categories' => explode(',', $this->input->getArgument('categories'))
             ],
-            [
-                'name' => 'required|string',
-                'description' => 'required|string',
-                'price' => 'required|numeric|min:0',
-                'image' => 'required|image|mimes:jpg,bmp,png',
-                'categories' => 'required|array',
-                'categories.*' => 'required|exists:categories,id',
-            ]
+            ProductValidator::creationRules()
         );
 
         if ($validator->fails()) {
@@ -65,7 +59,7 @@ class CreateProduct extends Command
             return Command::FAILURE;
         }
 
-        $productDTO = $this->inputProcessorFactory->getProcessor('console')->handle($this->input);
+        $productDTO = $this->inputProcessorFactory->getProcessor('console')->process($this->input);
 
         $product = $this->productRepository->create($productDTO);
 

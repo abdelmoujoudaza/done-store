@@ -19,8 +19,9 @@ test('product listing has a filters mecanisme', function (Category $category, st
     ->assertOk()
     ->assertInertia(fn (Assert $page) => $page
         ->component('products/Index', shouldExist: false)
-        ->has('products')
         ->has('categories')
+        ->has('products')
+        ->where('products.total', $category->products()->count())
         ->where('filters.category', (string) $category->id)
         ->where('filters.sort', $sort)
     );

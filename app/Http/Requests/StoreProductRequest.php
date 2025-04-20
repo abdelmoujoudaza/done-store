@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Validators\ProductValidator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductRequest extends FormRequest
@@ -21,13 +22,6 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'image' => 'required|image|mimes:jpg,bmp,png',
-            'categories' => 'required|array',
-            'categories.*' => 'required|exists:categories,id',
-        ];
+        return ProductValidator::creationRules();
     }
 }
