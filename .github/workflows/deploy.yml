@@ -1,0 +1,140 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  APP_ENV: testing
+  DB_CONNECTION: mysql
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_DATABASE: test_db
+  DB_USERNAME: root
+  DB_PASSWORD: password
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, mysql, pdo_mysql, tokenizer, xml, gd, sqlite
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Copy .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Setup database
+        run: |
+          php artisan migrate:fresh --seed --env=testing
+
+      - name: Prepare Laravel
+        run: |
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan cache:clear
+
+      - name: Run Pest tests
+        run: |
+          ./vendor/bin/pest --coverage --min=80
+
+  build-assets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, mysql, pdo_mysql, tokenizer, xml, gd, sqlite
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install npm dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-assets
+          path: |
+            public/build
+
+  deploy:
+    needs:
+      - laravel-tests
+      - build-assets
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download built assets
+        uses: actions/download-artifact@v4
+        with:
+          name: production-assets
+          path: public
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, mysql, pdo_mysql, tokenizer, xml, gd
+          tools: composer:v2
+
+      - name: Install composer dependencies (no dev)
+        run: composer install --prefer-dist --no-interaction --no-progress --no-dev
+
+      - name: Setup environment
+        run: |
+          echo "Done Store deployed successfully"

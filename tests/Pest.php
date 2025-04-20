@@ -16,6 +16,7 @@ pest()->extend(Tests\TestCase::class)
     ->in('Feature')
     ->beforeEach(function () {
         $this->seed();
+        $this->withoutVite();
     });
 
 /*
